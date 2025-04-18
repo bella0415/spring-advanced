@@ -16,47 +16,51 @@ import java.time.format.DateTimeFormatter;
 @Component
 public class WeatherClient {
 
-    private final RestTemplate restTemplate;
+	private final RestTemplate restTemplate;
 
-    public WeatherClient(RestTemplateBuilder builder) {
-        this.restTemplate = builder.build();
-    }
+	public WeatherClient(RestTemplateBuilder builder) {
+		this.restTemplate = builder.build();
+	}
 
-    public String getTodayWeather() {
-        ResponseEntity<WeatherDto[]> responseEntity =
-                restTemplate.getForEntity(buildWeatherApiUri(), WeatherDto[].class);
+	public String getTodayWeather() {
+		ResponseEntity<WeatherDto[]> responseEntity =
+			restTemplate.getForEntity(buildWeatherApiUri(), WeatherDto[].class);
 
-        WeatherDto[] weatherArray = responseEntity.getBody();
-        if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
-            throw new ServerException("날씨 데이터를 가져오는데 실패했습니다. 상태 코드: " + responseEntity.getStatusCode());
-        } else {
-            if (weatherArray == null || weatherArray.length == 0) {
-                throw new ServerException("날씨 데이터가 없습니다.");
-            }
-        }
+		WeatherDto[] weatherArray = responseEntity.getBody();
 
-        String today = getCurrentDate();
+		// 1. 응답 상태 코드 체크
+		if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
+			throw new ServerException("날씨 데이터를 가져오는데 실패했습니다. 상태 코드: " + responseEntity.getStatusCode());
+		}
 
-        for (WeatherDto weatherDto : weatherArray) {
-            if (today.equals(weatherDto.getDate())) {
-                return weatherDto.getWeather();
-            }
-        }
+		// 2. 응답 데이터 존재 여부 체크
+		if (weatherArray == null || weatherArray.length == 0) {
+			throw new ServerException("날씨 데이터가 없습니다.");
+		}
 
-        throw new ServerException("오늘에 해당하는 날씨 데이터를 찾을 수 없습니다.");
-    }
+		// 3. 정상 처리 (weatherArray를 사용해서 이후 로직 진행)
+		String today = getCurrentDate();
 
-    private URI buildWeatherApiUri() {
-        return UriComponentsBuilder
-                .fromUriString("https://f-api.github.io")
-                .path("/f-api/weather.json")
-                .encode()
-                .build()
-                .toUri();
-    }
+		for (WeatherDto weatherDto : weatherArray) {
+			if (today.equals(weatherDto.getDate())) {
+				return weatherDto.getWeather();
+			}
+		}
 
-    private String getCurrentDate() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd");
-        return LocalDate.now().format(formatter);
-    }
+		throw new ServerException("오늘에 해당하는 날씨 데이터를 찾을 수 없습니다.");
+	}
+
+	private URI buildWeatherApiUri() {
+		return UriComponentsBuilder
+			.fromUriString("https://f-api.github.io")
+			.path("/f-api/weather.json")
+			.encode()
+			.build()
+			.toUri();
+	}
+
+	private String getCurrentDate() {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd");
+		return LocalDate.now().format(formatter);
+	}
 }
