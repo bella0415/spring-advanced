@@ -18,7 +18,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -27,34 +28,34 @@ import static org.mockito.BDDMockito.given;
 class CommentServiceTest {
 
     @Mock
-    private CommentRepository commentRepository;
-    @Mock
     private TodoRepository todoRepository;
+
+    @Mock
+    private CommentRepository commentRepository; // ✅ 추가!!
+
     @InjectMocks
     private CommentService commentService;
 
     @Test
-    public void comment_등록_중_할일을_찾지_못해_에러가_발생한다() {
+    void comment_등록_중_할일을_찾지_못해_에러가_발생한다() {
         // given
-        long todoId = 1;
+        long todoId = 1L;
         CommentSaveRequest request = new CommentSaveRequest("contents");
         AuthUser authUser = new AuthUser(1L, "email", UserRole.USER);
 
-        given(todoRepository.findById(anyLong())).willReturn(Optional.empty());
+        given(todoRepository.findById(anyLong()))
+            .willReturn(Optional.empty());
 
-        // when
-        ServerException exception = assertThrows(ServerException.class, () -> {
-            commentService.saveComment(authUser, todoId, request);
-        });
-
-        // then
-        assertEquals("Todo not found", exception.getMessage());
+        // when & then
+        assertThatThrownBy(() -> commentService.saveComment(authUser, todoId, request))
+            .isInstanceOf(ServerException.class)
+            .hasMessage("Todo not found");
     }
 
     @Test
-    public void comment를_정상적으로_등록한다() {
+    void comment를_정상적으로_등록한다() {
         // given
-        long todoId = 1;
+        long todoId = 1L;
         CommentSaveRequest request = new CommentSaveRequest("contents");
         AuthUser authUser = new AuthUser(1L, "email", UserRole.USER);
         User user = User.fromAuthUser(authUser);
