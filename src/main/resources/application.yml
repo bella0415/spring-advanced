@@ -1,0 +1,3 @@
+jwt:
+  secret:
+    key: "abcd1234abcd1234abcd1234abcd1234"

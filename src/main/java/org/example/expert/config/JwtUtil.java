@@ -30,7 +30,7 @@ public class JwtUtil {
 
     @PostConstruct
     public void init() {
-        byte[] bytes = Base64.getDecoder().decode(secretKey);
+        byte[] bytes = secretKey.getBytes(); // Base64 디코딩 하지 말고 그냥 bytes로 변환
         key = Keys.hmacShaKeyFor(bytes);
     }
 
