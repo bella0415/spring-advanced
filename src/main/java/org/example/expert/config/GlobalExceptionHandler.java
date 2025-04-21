@@ -32,6 +32,13 @@ public class GlobalExceptionHandler {
         return getErrorResponse(status, ex.getMessage());
     }
 
+    // 예상치 못한 모든 Exception 통합 처리
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        return getErrorResponse(status, "서버 오류가 발생했습니다.");
+    }
+
     public ResponseEntity<Map<String, Object>> getErrorResponse(HttpStatus status, String message) {
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("status", status.name());
