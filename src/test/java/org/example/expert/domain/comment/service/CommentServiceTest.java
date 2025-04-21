@@ -31,7 +31,7 @@ class CommentServiceTest {
     private TodoRepository todoRepository;
 
     @Mock
-    private CommentRepository commentRepository; // ✅ 추가!!
+    private CommentRepository commentRepository;
 
     @InjectMocks
     private CommentService commentService;
