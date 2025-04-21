@@ -17,6 +17,7 @@ public class UserChangePasswordRequest {
     @Size(min = 8, message = "새 비밀번호는 8자 이상이어야 합니다.")
     @Pattern(regexp = ".*\\d.*", message = "새 비밀번호에는 숫자가 하나 이상 포함되어야 합니다.")
     @Pattern(regexp = ".*[A-Z].*", message = "새 비밀번호에는 대문자가 하나 이상 포함되어야 합니다.")
+    @Pattern(regexp = ".*[!@#$%^&*(),.?\":{}|<>].*", message = "새 비밀번호에는 특수문자가 하나 이상 포함되어야 합니다.")
     private String newPassword;
 
     // 생성자, getter, setter 등 필요한 부분 작성
